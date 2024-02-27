@@ -4,6 +4,7 @@ import React, {useState, useEffect} from "react";
 import { Karla } from 'next/font/google';
 import Dice from "./components/die/die";
 import { nanoid } from "nanoid";
+import Confetti from "react-confetti";
 
 const karla = Karla({
   subsets: ['latin'],
@@ -22,10 +23,17 @@ export default function Home() {
     return defaultArray
   }
 
+  const [winner, setWinner] = React.useState(false)
   const [dieList, setDieList] = useState(() => resetAll())
   const dieArray = dieList.map(dieNumber => <Dice key={dieNumber.id} value={dieNumber.value} isHeld={dieNumber.isHeld} holdDice={() => holdDice(dieNumber.id)}/>)
-  const winner = dieList.every(dice => dice.value === dieList[0].value && dice.isHeld === true)
   
+  useEffect(() => {
+    if(dieList.every(dice => dice.value === dieList[0].value && dice.isHeld === true)){
+      setWinner(true)
+    } else {
+      setWinner(false)
+    }
+  }, [dieList])
 
   function allNewDice(){
     const diceArray = []
@@ -57,11 +65,28 @@ export default function Home() {
     })))
   }
 
+  const [windowSize, setWindowSize] = useState({
+    width: undefined,
+    height: undefined
+  })
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight
+      })
+    }
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   return (
     <main className={styles.backgroundFrame}>
       <div className={styles.backgroundInnerFrame}>
         {winner ? (
           <>
+            <Confetti width={windowSize.width} height={windowSize.height}/>
             <h1 className={styles.winText}>You Win!</h1>
             <button onClick={()=>setDieList(resetAll)} className={`${styles.randomiseButton} ${karla.className}`}>
               Play Again
