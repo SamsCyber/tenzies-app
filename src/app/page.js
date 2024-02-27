@@ -1,94 +1,89 @@
+'use client'
 import Image from "next/image";
 import styles from "./page.module.css";
+import React, {useState, useEffect} from "react";
+import { Karla } from 'next/font/google';
+import Dice from "./components/die/die";
+import { nanoid } from "nanoid";
+
+const karla = Karla({
+  subsets: ['latin'],
+  weight: ['600', '800']
+})
 
 export default function Home() {
+  const [isClient, setIsClient] = useState(false)
+  useEffect(() =>{
+    setIsClient(true);
+  }, [])
+
+  const resetAll = () => {
+    const numArray = allNewDice()
+    const defaultArray = numArray.map(num => ({value: num, isHeld: false, id: nanoid()}))
+    return defaultArray
+  }
+
+  const [dieList, setDieList] = useState(() => resetAll())
+  const dieArray = dieList.map(dieNumber => <Dice key={dieNumber.id} value={dieNumber.value} isHeld={dieNumber.isHeld} holdDice={() => holdDice(dieNumber.id)}/>)
+  const winner = dieList.every(dice => dice.value === dieList[0].value && dice.isHeld === true)
+  
+
+  function allNewDice(){
+    const diceArray = []
+    for(let i = 0; i < 10; i++){
+      diceArray.push(Math.floor((Math.random()*6))+1)
+    }
+    return diceArray
+  }
+
+  function reRollIfNotHeld(){
+    setDieList(prevDice => {
+      const newList = allNewDice();
+      const resultList = []
+      for(let i = 0; i < newList.length; i++){
+        if(prevDice[i].isHeld){
+          resultList.push(prevDice[i])
+        } else{
+          resultList.push({...prevDice[i], value:newList[i]})
+        }
+      }
+      return resultList
+    })
+  }
+
+  function holdDice(clickId){
+    setDieList(prevDice => prevDice.map(Dice => ({
+      ...Dice,
+      isHeld: clickId===Dice.id ? !Dice.isHeld : Dice.isHeld
+    })))
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+    <main className={styles.backgroundFrame}>
+      <div className={styles.backgroundInnerFrame}>
+        {winner ? (
+          <>
+            <h1 className={styles.winText}>You Win!</h1>
+            <button onClick={()=>setDieList(resetAll)} className={`${styles.randomiseButton} ${karla.className}`}>
+              Play Again
+            </button> 
+          </>
+          ) : (
+          <>
+            <h1 className={`${styles.tenziesTitle}`}> 
+              Tenzies 
+            </h1>
+            <h3 className={styles.tenziesDescription}> 
+              Roll until all dice are the same. Click each die to freeze it at its currrent value between rolls. 
+            </h3>
+            <div className={styles.diceFrame}>
+              {isClient && dieArray}
+            </div>
+            <button onClick={() => reRollIfNotHeld()} className={`${styles.randomiseButton} ${karla.className}`}> 
+              Roll 
+            </button>
+          </> 
+        )}
       </div>
     </main>
   );
