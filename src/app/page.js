@@ -1,5 +1,4 @@
 'use client'
-import Image from "next/image";
 import styles from "./page.module.css";
 import React, {useState, useEffect} from "react";
 import { Karla } from 'next/font/google';
