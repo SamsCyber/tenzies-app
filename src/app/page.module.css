@@ -4,13 +4,14 @@ main.backgroundFrame{
   background-color: #0B2434;
   width: 70vh;
   height: 70vh;
-  min-width: 400px;
-  min-height: 400px;
+  min-width: 550px;
+  min-height: 550px;
   padding: 15px;
   margin: 70px auto;
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
+  border-radius: 10px;
 }
 
 .backgroundInnerFrame{
@@ -47,6 +48,20 @@ main.backgroundFrame{
   box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.25);
 }
 
+.randomiseButtonWon{
+  width: 25%;
+  height: 10%;
+  background-color: #5035FF;
+  border: none;
+  margin-bottom: -10%;
+  border-radius: 4px;
+  font-size: 1.7rem;
+  color: white; 
+  cursor: pointer; 
+  overflow: hidden;
+  box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.25);
+}
+
 .randomiseButton:active{
   box-shadow: inset 5px 5px 10px -3px rgba(0, 0, 0, 0.7);
 }
@@ -62,7 +77,7 @@ main.backgroundFrame{
 .tenziesDescription{
   width: 70%;
   height: 10%;
-  margin-top: -10px;
+  margin-top: 0px;
   height: auto;
   font-size: 1.3rem;
   font-weight: 500;
@@ -74,6 +89,38 @@ main.backgroundFrame{
   font-family: 'Karla', sans-serif;
   font-weight: 700;
   font-size: 4rem;
-  margin-bottom: -250px;
+  margin-bottom: -100px;
   color: #4A4E74;
+}
+
+.rollCounter{
+  width: auto;
+  height: 20px;
+  overflow: hidden;
+  color: #4A4E74;
+  font-weight: 500;
+  font-size: 1.3rem;
+  margin-top: -20px;
+  margin-bottom: -10px;
+}
+
+.rollWin{
+  color: #4A4E74;
+  margin-bottom: -100px;
+  font-weight: 600;
+}
+
+.timer{
+  font-family: 'Karla', sans-serif;
+  font-weight: 600;
+  margin-top: -10px;
+  color: #4A4E74;
+}
+
+.bestTime{
+  font-family: 'Karla', sans-serif;
+  font-weight: 600;
+  color: #4A4E74;
+  margin-top: -30px;
+  margin-bottom: -10px;
 }

@@ -9,7 +9,7 @@ const karla = Karla({
     weight: '800'
 });
 
-export default function Dice({ value, isHeld, holdDice }){
+export default function Dice({ value, isHeld, holdDice, activeTimer}){
 
     const dotArray = []
     for(let i = 0; i < value; i++){
@@ -17,7 +17,11 @@ export default function Dice({ value, isHeld, holdDice }){
     }
 
     return(
-        <div className={!isHeld ? `${styles.divDie} ${karla.className}` : `${styles.divDie} ${karla.className} ${styles.divDieActive}`} onClick={holdDice}>
+        <div className={!isHeld ? `${styles.divDie} ${karla.className}` : `${styles.divDie} ${karla.className} ${styles.divDieActive}`} onClick={() => {
+            holdDice()
+            activeTimer()
+        }
+        }>
             {dotArray}
         </div>
     )
