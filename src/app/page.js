@@ -5,10 +5,11 @@ import { Karla } from 'next/font/google';
 import Dice from "./components/die/die";
 import { nanoid } from "nanoid";
 import Confetti from "react-confetti";
+import Timer from "./components/timer/timer";
 
 const karla = Karla({
   subsets: ['latin'],
-  weight: ['600', '800']
+  weight: ['500','600', '800']
 })
 
 export default function Home() {
@@ -23,17 +24,59 @@ export default function Home() {
     return defaultArray
   }
 
-  const [winner, setWinner] = React.useState(false)
+  const [allTimeSeconds, setAllTimeSeconds] = useState(null)
+  const [timerSeconds, setTimerSeconds] = useState(0)
+  const [timerActive, setTimerActive] = useState(false)
+  const activateOrDeactivateTimer = (activateOrDeactivate) => {
+    if(!timerActive && activateOrDeactivate === true){
+      setTimerActive(activateOrDeactivate)
+    } else if(activateOrDeactivate === false){
+      setTimerActive(activateOrDeactivate)
+    }
+  }
+  const resetTimer = () => {
+    setTimerActive(false)
+    setTimerSeconds(0)
+  }
+
+  const [allTimeRoll, setAllTimeRoll] = useState(null)
+  const [nOfRolls, setNOfRolls] = useState(0)
+  const [winner, setWinner] = useState(false)
   const [dieList, setDieList] = useState(() => resetAll())
-  const dieArray = dieList.map(dieNumber => <Dice key={dieNumber.id} value={dieNumber.value} isHeld={dieNumber.isHeld} holdDice={() => holdDice(dieNumber.id)}/>)
+  const dieArray = dieList.map(dieNumber => <Dice key={dieNumber.id} value={dieNumber.value} isHeld={dieNumber.isHeld} holdDice={() => holdDice(dieNumber.id)} activeTimer={() => activateOrDeactivateTimer(true)}/>)
   
   useEffect(() => {
     if(dieList.every(dice => dice.value === dieList[0].value && dice.isHeld === true)){
       setWinner(true)
+      activateOrDeactivateTimer(false)
     } else {
       setWinner(false)
     }
   }, [dieList])
+
+  useEffect(() => {
+    const bestScore = localStorage.getItem('bestScore')
+    const bestTime = localStorage.getItem('bestTime')
+    if(bestScore){
+      setAllTimeRoll(bestScore)
+    }
+    if(bestTime){
+      setAllTimeSeconds(bestTime)
+    }
+  }, [])
+
+  useEffect(() => {
+    if(winner === true){
+      if(allTimeRoll === null || nOfRolls < allTimeRoll){
+        localStorage.setItem('bestScore', nOfRolls)
+        setAllTimeRoll(nOfRolls)
+      }
+      if(allTimeSeconds === null || timerSeconds < allTimeSeconds){
+        localStorage.setItem('bestTime', timerSeconds)
+        setAllTimeSeconds(timerSeconds)
+      }
+    }
+  }, [winner])
 
   function allNewDice(){
     const diceArray = []
@@ -56,6 +99,7 @@ export default function Home() {
       }
       return resultList
     })
+    setNOfRolls(prev => prev + 1);
   }
 
   function holdDice(clickId){
@@ -80,7 +124,7 @@ export default function Home() {
     handleResize();
     return () => window.removeEventListener('resize', handleResize)
   }, [])
-
+  
   return (
     <main className={styles.backgroundFrame}>
       <div className={styles.backgroundInnerFrame}>
@@ -88,7 +132,13 @@ export default function Home() {
           <>
             <Confetti width={windowSize.width} height={windowSize.height}/>
             <h1 className={styles.winText}>You Win!</h1>
-            <button onClick={()=>setDieList(resetAll)} className={`${styles.randomiseButton} ${karla.className}`}>
+            <h2 className={styles.rollWin}> It took you <strong>{nOfRolls}</strong> {nOfRolls == 1 ? " roll to win!" : " rolls to win!"} </h2>
+            <button onClick={()=>{
+              setDieList(resetAll)
+              setNOfRolls(0)
+              resetTimer()
+              }
+            } className={`${styles.randomiseButtonWon} ${karla.className}`}>
               Play Again
             </button> 
           </>
@@ -100,6 +150,12 @@ export default function Home() {
             <h3 className={styles.tenziesDescription}> 
               Roll until all dice are the same. Click each die to freeze it at its currrent value between rolls. 
             </h3>
+            <p className={styles.rollCounter}>
+              Number of rolls taken: <strong>{nOfRolls}</strong>
+            </p>
+            {allTimeRoll !== null && <p className={styles.rollCounter}>
+              Personal best score: <strong>{allTimeRoll}</strong>
+            </p>}
             <div className={styles.diceFrame}>
               {isClient && dieArray}
             </div>
@@ -108,6 +164,8 @@ export default function Home() {
             </button>
           </> 
         )}
+        <Timer className={styles.timer} timerActive={timerActive} timerSeconds={timerSeconds} setTimerSeconds={setTimerSeconds} winner={winner}/>
+        {allTimeSeconds !== null && <p className={styles.bestTime}>Personal fastest time: {Math.floor(allTimeSeconds / 60) >= 1 ? `${Math.floor(allTimeSeconds / 60)} mins, ${Math.floor(allTimeSeconds % 60)} secs`: `${Math.floor(allTimeSeconds % 60)} secs`}</p>}
       </div>
     </main>
   );
